@@ -1,0 +1,4 @@
+azure-functions
+requests
+azure-iot-device
+google-api-python-client
