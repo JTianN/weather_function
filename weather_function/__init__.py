@@ -42,47 +42,71 @@ def send_telemetry(connection_string: str, payload: dict):
     finally:
         client.disconnect()
 
+
+
 def main(mytimer: func.TimerRequest) -> None:
-    logging.info("Weather → IoT Hub function started")
+    logging.info("Function started")
 
-    # ✅ ดึง ENV ที่นี่เท่านั้น
     google_api_key = os.getenv("GOOGLE_API_KEY")
-    conn_bkk = os.getenv("IOT_CONN_BANGKOK")
-    conn_ayt = os.getenv("IOT_CONN_AYUTTHAYA")
-
-    if not google_api_key or not conn_bkk or not conn_ayt:
-        logging.error("Missing environment variables")
+    if not google_api_key:
+        logging.error("Missing GOOGLE_API_KEY")
         return
 
-    device_connections = {
-        "bangkok": conn_bkk,
-        "ayutthaya": conn_ayt
-    }
-
     for loc in LOCATIONS:
-        location_id = loc["location_id"]
-
         try:
             weather = get_current_weather(
                 google_api_key,
                 loc["latitude"],
                 loc["longitude"]
             )
+            logging.info(f"{loc['location_id']} weather: {weather}")
         except Exception as e:
-            logging.error(f"Weather error {location_id}: {e}")
-            continue
+            logging.exception(f"Weather error {loc['location_id']}")
 
-        telemetry = {
-            "schemaVersion": "v1",
-            "source": "google-weather",
-            "locationId": location_id,
-            "timestamp": weather["timestamp"],
-            "temp": weather["temperature_c"],
-            "humi": weather["humidity_percent"],
-            "uv_index": weather["uv_index"]
-        }
+    logging.info("Function finished")
 
-        logging.info(f"Sending telemetry → {location_id}")
-        send_telemetry(device_connections[location_id], telemetry)
 
-    logging.info("Weather → IoT Hub function finished")
+# def main(mytimer: func.TimerRequest) -> None:
+#     logging.info("Weather → IoT Hub function started")
+
+#     # ✅ ดึง ENV ที่นี่เท่านั้น
+#     google_api_key = os.getenv("GOOGLE_API_KEY")
+#     conn_bkk = os.getenv("IOT_CONN_BANGKOK")
+#     conn_ayt = os.getenv("IOT_CONN_AYUTTHAYA")
+
+#     if not google_api_key or not conn_bkk or not conn_ayt:
+#         logging.error("Missing environment variables")
+#         return
+
+#     device_connections = {
+#         "bangkok": conn_bkk,
+#         "ayutthaya": conn_ayt
+#     }
+
+#     for loc in LOCATIONS:
+#         location_id = loc["location_id"]
+
+#         try:
+#             weather = get_current_weather(
+#                 google_api_key,
+#                 loc["latitude"],
+#                 loc["longitude"]
+#             )
+#         except Exception as e:
+#             logging.error(f"Weather error {location_id}: {e}")
+#             continue
+
+#         telemetry = {
+#             "schemaVersion": "v1",
+#             "source": "google-weather",
+#             "locationId": location_id,
+#             "timestamp": weather["timestamp"],
+#             "temp": weather["temperature_c"],
+#             "humi": weather["humidity_percent"],
+#             "uv_index": weather["uv_index"]
+#         }
+
+#         logging.info(f"Sending telemetry → {location_id}")
+#         send_telemetry(device_connections[location_id], telemetry)
+
+#     logging.info("Weather → IoT Hub function finished")
