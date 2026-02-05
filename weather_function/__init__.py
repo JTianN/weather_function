@@ -3,7 +3,7 @@ import logging
 import os
 import requests
 import azure.functions as func
-from azure.iot.device import IoTHubDeviceClient, Message
+#from azure.iot.device import IoTHubDeviceClient, Message
 
 #setup
 WEATHER_URL = "https://weather.googleapis.com/v1/currentConditions:lookup"
